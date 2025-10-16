@@ -121,6 +121,7 @@ import time
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 from werkzeug.utils import secure_filename
+import imghdr
 
 from model3 import (
     load_model,
@@ -169,12 +170,27 @@ def image_yolo():
     if not file or file.filename == '':
         return jsonify({"error": "empty filename"}), 400
 
-    filename = secure_filename(file.filename)
-    save_path = os.path.join('uploads', filename)
+    # --- Save the uploaded file temporarily ---
+    raw_filename = secure_filename(file.filename or f"{int(time.time())}")
+    save_path = os.path.join('uploads', raw_filename)
     file.save(save_path)
 
-    obstacle_id = _extract_obstacle_id(filename)
-    image_id = predict_image_yolo(filename, model)
+    # --- Detect image type ---
+    detected_type = imghdr.what(save_path)
+    if detected_type:
+        # Rename with detected extension
+        new_filename = f"{raw_filename}.{detected_type}"
+        new_path = os.path.join('uploads', new_filename)
+        os.rename(save_path, new_path)
+        save_path = new_path
+    else:
+        print(f"[WARN] Could not detect image type for {raw_filename}, keeping original")
+
+    print(f"[DEBUG] Saved image to {save_path}")
+
+    # --- Normal YOLO flow ---
+    obstacle_id = _extract_obstacle_id(raw_filename)
+    image_id = predict_image_yolo(os.path.basename(save_path), model)
 
     # increment counter
     IMAGEYOLO_CALL_COUNT += 1
@@ -192,6 +208,8 @@ def image_yolo():
         else:
             print("[WARN] No images found to stitch.")
         IMAGEYOLO_CALL_COUNT = 0  # reset counter
+
+    print(f"[INFO] image id and obstacle id are {image_id} and {obstacle_id} ")
 
     result = {
         "obstacle_id": obstacle_id,

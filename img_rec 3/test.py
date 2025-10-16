@@ -1,15 +1,17 @@
 from ultralytics import YOLO
 
 # Load your trained model
-model = YOLO("img_rec 3/runs/detect/aug_21/weights/best(125epochs).pt")
+# model = YOLO("img_rec 3/runs/detect/aug_21/weights/best(125epochs).pt")
+model = YOLO(r"C:\Users\envy\OneDrive\Documents\MDP2025\CZ3004-SC2079-MDP-ImageRecognition\img_rec 3\runs\detect\aug_21\weights\best(125epochs).pt")
+
 
 # model.predict(source=0, show=True)
 
 
 model.predict(
-    source="1793386000_12_A.png",
+    source="uploads/photo_6305196958049569618_y.jpg.jpeg",
     project="results",
-    name="heuristic_test_1",
+    name="heuristic_test_x",
     save=True
 )
 

@@ -70,7 +70,7 @@ RAW_TO_HUMAN = {
     "20": "A", "21": "B", "22": "C", "23": "D", "24": "E", "25": "F", "26": "G", "27": "H",
     "28": "S", "29": "T", "30": "U", "31": "V", "32": "W", "33": "X", "34": "Y", "35": "Z",
     "36": "Up", "37": "Down", "38": "Right", "39": "Left",
-    "40": "Stop"
+    "40": "Stop", "marker": "Bullseye"
 }
 
 def to_human_label(raw_label):
@@ -153,7 +153,7 @@ def predict_image_yolo(image_filename: str, model) -> str:
         raw_label = names[cls_id]        # e.g. "28"
         label = to_human_label(raw_label)  # convert -> "S"
 
-        if conf < YOLO_CONF or label == "Bullseye":
+        if conf < YOLO_CONF :
             continue
 
         area = (x2 - x1) * (y2 - y1)
